@@ -91,6 +91,7 @@ public class Main
             if (file.getName().equals(".git"))
             {
                 files.add(file);
+                break;
             }
             else if (file.isDirectory() && depth < maxSearchDepth && !foldersToIgnore.contains(file.getName()))
             {
