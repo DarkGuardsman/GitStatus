@@ -1,6 +1,11 @@
 package com.builtbroken.git.status;
 
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,8 +51,30 @@ public class Main
 
                 for (File file : files)
                 {
-                    log("File: " + file);
+                    File folder = file.getParentFile();
+                    log("Repo: " + folder);
+
+                    FileRepositoryBuilder builder = new FileRepositoryBuilder();
+                    try (Repository repository = builder.setGitDir(folder)
+                            .readEnvironment() // scan environment GIT_* variables
+                            .findGitDir() // scan up the file system tree
+                            .build())
+                    {
+                        System.out.println("Having repository: " + repository.getDirectory());
+
+                        // the Ref holds an ObjectId for any type of object (tree, commit, blob, tree)
+                        Ref head = repository.exactRef("refs/heads/master");
+                        System.out.println("Ref of refs/heads/master: " + head);
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
+
+                //https://git-scm.com/book/be/v2/Embedding-Git-in-your-Applications-JGit
+                //https://github.com/centic9/jgit-cookbook
+                //https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/porcelain/ListUncommittedChanges.java
             }
         }
         else
