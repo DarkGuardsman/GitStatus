@@ -6,3 +6,6 @@ build/
 changelog.html
 output/
 \.idea/
+\out/
+
+GitStatus\.txt

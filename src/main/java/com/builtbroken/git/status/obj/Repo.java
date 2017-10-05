@@ -1,0 +1,68 @@
+package com.builtbroken.git.status.obj;
+
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+
+import java.io.File;
+import java.io.IOException;
+
+/**
+ * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
+ * Created by Dark(DarkGuardsman, Robert) on 10/5/2017.
+ */
+public class Repo
+{
+    public final File file;
+
+    public boolean hasChanges = false;
+    public boolean isOpen = false;
+    public int changeCount = 0;
+
+    private Repository repository;
+    private Git git;
+
+    public Repo(File file)
+    {
+        this.file = file;
+    }
+
+    public void open() throws IOException
+    {
+        if(!isOpen)
+        {
+            isOpen = true;
+            FileRepositoryBuilder builder = new FileRepositoryBuilder();
+            repository = builder.setGitDir(file)
+                    .readEnvironment() // scan environment GIT_* variables
+                    .findGitDir() // scan up the file system tree
+                    .build();
+
+            git = new Git(repository);
+        }
+    }
+
+    public void close()
+    {
+        if(isOpen)
+        {
+            isOpen = false;
+            git.close();
+            repository.close();
+        }
+    }
+
+    public void checkStatus() throws GitAPIException
+    {
+        Status status = git.status().call();
+        hasChanges = status.hasUncommittedChanges();
+        changeCount = status.getUncommittedChanges().size();
+    }
+
+    public boolean hasChanges()
+    {
+        return hasChanges;
+    }
+}

@@ -1,13 +1,11 @@
 package com.builtbroken.git.status;
 
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import com.builtbroken.git.status.obj.Repo;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -46,30 +44,10 @@ public class Main
             File searchFolder = new File(filePath);
             if (searchFolder.exists() && searchFolder.isDirectory())
             {
-                List<File> files = new ArrayList();
-                findFiles(searchFolder, files, 0);
-
-                for (File file : files)
+                List<Repo> repos = getRepositoriesWithChanges(searchFolder);
+                for (Repo repo : repos)
                 {
-                    File folder = file.getParentFile();
-                    log("Repo: " + folder);
-
-                    FileRepositoryBuilder builder = new FileRepositoryBuilder();
-                    try (Repository repository = builder.setGitDir(folder)
-                            .readEnvironment() // scan environment GIT_* variables
-                            .findGitDir() // scan up the file system tree
-                            .build())
-                    {
-                        System.out.println("Having repository: " + repository.getDirectory());
-
-                        // the Ref holds an ObjectId for any type of object (tree, commit, blob, tree)
-                        Ref head = repository.exactRef("refs/heads/master");
-                        System.out.println("Ref of refs/heads/master: " + head);
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
+                    log("Repo: " + repo.file + " has " + repo.changeCount + " uncommitted changes");
                 }
 
                 //https://git-scm.com/book/be/v2/Embedding-Git-in-your-Applications-JGit
@@ -82,6 +60,50 @@ public class Main
             //TODO load save file
             //TODO open GUI
         }
+    }
+
+    public static List<Repo> getRepositoriesWithChanges(File folder)
+    {
+        List<Repo> repos = getRepositories(folder);
+        Iterator<Repo> it = repos.iterator();
+        while (it.hasNext())
+        {
+            Repo repo = it.next();
+            try
+            {
+                repo.open();
+                repo.checkStatus();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
+                repo.close();
+            }
+
+            if (!repo.hasChanges())
+            {
+                it.remove();
+            }
+        }
+        return repos;
+    }
+
+    public static List<Repo> getRepositories(File folder)
+    {
+        List<Repo> repos = new ArrayList();
+
+        List<File> files = new ArrayList();
+        findFiles(folder, files, 0);
+
+        for (File file : files)
+        {
+            repos.add(new Repo(file));
+        }
+
+        return repos;
     }
 
     public static void findFiles(File folder, List<File> files, int depth)
