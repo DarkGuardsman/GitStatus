@@ -95,6 +95,13 @@ public class MainDisplayFrame extends JFrame
             }
         });
 
+        INSTANCE.addWindowStateListener(e -> {
+            if (e.getNewState() == ICONIFIED)
+            {
+                INSTANCE.sendToTray();
+            }
+        });
+
         //Setup
         INSTANCE.init();
 
