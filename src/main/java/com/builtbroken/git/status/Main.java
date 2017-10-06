@@ -1,14 +1,10 @@
 package com.builtbroken.git.status;
 
 import com.builtbroken.git.status.gui.MainDisplayFrame;
-import com.builtbroken.git.status.helpers.FileHelper;
-import com.builtbroken.git.status.obj.Repo;
 
 import javax.swing.*;
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -21,69 +17,45 @@ public class Main
     public static void main(String... args)
     {
         //TODO add dependency downloader using Maven
-        log("Starting");
+        log("Starting Application");
 
         //Collect arguments
         final HashMap<String, String> launchSettings = loadArgs(args);
 
-        if (launchSettings.containsKey("noGUI"))
+        try
         {
-            if (!launchSettings.containsKey("searchFolder"))
+            //Create and open GUI
+            MainDisplayFrame.create(launchSettings);
+
+            //Wait on app to die
+            while (MainDisplayFrame.isRunning())
             {
-                //TODO collect input from user instead
-                log("Failed in include '-searchFolder=some/file/location' in program arguments for search for git repos");
-                System.exit(1);
+                Thread.sleep(100);
             }
-            String filePath = launchSettings.get("searchFolder");
-            File searchFolder = new File(filePath);
-            if (searchFolder.exists() && searchFolder.isDirectory())
-            {
-                List<Repo> repos = FileHelper.getRepositoriesWithChanges(searchFolder);
-                for (Repo repo : repos)
-                {
-                    log("Repo: " + repo.file + " has " + repo.changeCount + " uncommitted changes");
-                }
-            }
-            waitForEnter("Press [ANY] key to exit!");
+
+            //Kill app, with normal exit
             System.exit(0);
         }
-        else
+        catch (Throwable t)
         {
-            try
+            //Log error
+            t.printStackTrace(); //TODO save to file
+
+            //Save data to prevent loss of work
+            if (MainDisplayFrame.INSTANCE != null)
             {
-                //Create and open GUI
-                MainDisplayFrame.create(launchSettings);
-
-                //Wait on app to die
-                while (MainDisplayFrame.isRunning())
-                {
-                    Thread.sleep(100);
-                }
-
-                //Kill app, with normal exit
-                System.exit(0);
+                MainDisplayFrame.INSTANCE.forceSave(true);
             }
-            catch (Throwable t)
-            {
-                //Log error
-                t.printStackTrace(); //TODO save to file
 
-                //Save data to prevent loss of work
-                if (MainDisplayFrame.INSTANCE != null)
-                {
-                    MainDisplayFrame.INSTANCE.forceSave(true);
-                }
+            //TODO make custom error pop up with pastebin.com button
+            JOptionPane.showMessageDialog(MainDisplayFrame.INSTANCE, "Unexpected error while running application!"
 
-                //TODO make custom error pop up with pastebin.com button
-                JOptionPane.showMessageDialog(MainDisplayFrame.INSTANCE, "Unexpected error while running application!"
+                            + "\nError: " + t.toString(),
+                    "Crash",
+                    JOptionPane.ERROR_MESSAGE);
 
-                                + "\nError: " + t.toString(),
-                        "Crash",
-                        JOptionPane.ERROR_MESSAGE);
-
-                //Close with unexpected error
-                System.exit(-1);
-            }
+            //Close with unexpected error
+            System.exit(-1);
         }
     }
 
