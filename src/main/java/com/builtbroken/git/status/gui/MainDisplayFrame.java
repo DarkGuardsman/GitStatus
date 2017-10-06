@@ -1,13 +1,13 @@
 package com.builtbroken.git.status.gui;
 
 import com.builtbroken.git.status.Main;
-import com.builtbroken.git.status.save.SaveHandler;
+import com.builtbroken.git.status.logic.Core;
+import com.builtbroken.git.status.logic.ThreadScan;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.util.HashMap;
 
 /**
@@ -16,20 +16,14 @@ import java.util.HashMap;
  */
 public class MainDisplayFrame extends JFrame
 {
-    public static final String WORKING_PATH = "bbm/getstatus";
-
     public static MainDisplayFrame INSTANCE;
     private static boolean running = true;
 
+    public final Core core;
 
-    public HashMap<String, String> launchSettings;
-    public SaveHandler saveHandler;
-    public File saveFolder;
-
-
-    public MainDisplayFrame(HashMap<String, String> launchSettings)
+    public MainDisplayFrame(Core core)
     {
-        this.launchSettings = launchSettings;
+        this.core = core;
         setMinimumSize(new Dimension(800, 600));
         setSize(new Dimension(1000, 800));
         setResizable(false);
@@ -45,44 +39,12 @@ public class MainDisplayFrame extends JFrame
         return running;
     }
 
-    public void init()
-    {
-        if (launchSettings.containsKey("workingDirectory"))
-        {
-            saveFolder = new File(launchSettings.get("workingDirectory"));
-        }
-        else
-        {
-            String workingDirectory;
-            String OS = (System.getProperty("os.name")).toUpperCase();
-
-            if (OS.contains("WIN"))
-            {
-                workingDirectory = System.getenv("LOCALAPPDATA") + "/" + WORKING_PATH;
-                if (workingDirectory == null)
-                {
-                    workingDirectory = System.getenv("AppData") + "/." + WORKING_PATH;
-                }
-            }
-            else
-            {
-                workingDirectory = System.getProperty("user.home");
-                workingDirectory += "/Library/Application Support/" + WORKING_PATH;
-            }
-
-            saveFolder = new File(workingDirectory);
-            if (!saveFolder.exists())
-            {
-                saveFolder.mkdirs();
-            }
-            saveHandler = new SaveHandler(saveFolder);
-        }
-    }
-
     public static void create(HashMap<String, String> launchSettings)
     {
+        Core core = new Core(launchSettings);
+
         Main.log("Opening repo display");
-        INSTANCE = new MainDisplayFrame(launchSettings);
+        INSTANCE = new MainDisplayFrame(core);
 
         INSTANCE.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         INSTANCE.addWindowListener(new WindowAdapter()
@@ -103,11 +65,11 @@ public class MainDisplayFrame extends JFrame
         });
 
         //Setup
-        INSTANCE.init();
+        core.init();
 
         //Load save
         Main.log("Loading save");
-        INSTANCE.saveHandler.load();
+        core.load();
 
         //Create system tray
         TrayApp.create();
@@ -127,7 +89,7 @@ public class MainDisplayFrame extends JFrame
                 JOptionPane.QUESTION_MESSAGE, null, null, null);
         if (confirm == 0)
         {
-            INSTANCE.saveHandler.save();
+            INSTANCE.core.save();
             INSTANCE.dispose();
             running = false;
             System.exit(0);
@@ -153,36 +115,4 @@ public class MainDisplayFrame extends JFrame
         INSTANCE.setVisible(false);
     }
 
-    /**
-     * Gets the recommended folder to scan for repos
-     *
-     * @return
-     */
-    public String getRecommendedSearchFolder()
-    {
-        if (launchSettings.containsKey("searchFolder"))
-        {
-            return launchSettings.get("searchFolder");
-        }
-        //TODO when save system is added, get last used folder
-        return null;
-    }
-
-    /**
-     * Called to force save
-     *
-     * @param crashed - is the save being forced due to a crash
-     * @return
-     */
-    public void forceSave(boolean crashed)
-    {
-        if (crashed)
-        {
-            //TODO backup old save data
-        }
-        if (saveHandler != null && saveHandler.hasUnsavedChanged)
-        {
-            saveHandler.save();
-        }
-    }
 }

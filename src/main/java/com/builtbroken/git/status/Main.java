@@ -44,7 +44,7 @@ public class Main
             //Save data to prevent loss of work
             if (MainDisplayFrame.INSTANCE != null)
             {
-                MainDisplayFrame.INSTANCE.forceSave(true);
+                MainDisplayFrame.INSTANCE.core.forceSave(true);
             }
 
             //TODO make custom error pop up with pastebin.com button

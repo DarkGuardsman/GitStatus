@@ -34,11 +34,14 @@ public class Repo
     //Data about repo
     public boolean hasChanges = false;
     public boolean isOpen = false;
+    public boolean exists = false;
+
     public int changeCount = 0;
 
     //Internal stuff
     private Repository repository;
     private Git git;
+
 
     public Repo(File file)
     {
@@ -59,7 +62,7 @@ public class Repo
             git = new Git(repository);
         }
 
-        if(repoName == null)
+        if (repoName == null)
         {
             repoName = file.getParentFile().getName();
         }
@@ -85,5 +88,21 @@ public class Repo
     public boolean hasChanges()
     {
         return hasChanges;
+    }
+
+    @Override
+    public boolean equals(Object object)
+    {
+        if (object instanceof Repo)
+        {
+            return ((Repo) object).file.equals(((Repo) object).file);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Repo[" + file.getPath() + "]@" + hashCode();
     }
 }

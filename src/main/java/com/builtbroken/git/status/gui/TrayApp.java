@@ -22,6 +22,9 @@ public class TrayApp extends TrayIcon
     private static Image trayInactiveIcon;
     private static Image trayWarningIcon;
 
+    private MenuItem enableDisableMenuItem;
+    private boolean areUpdatesEnabled;
+
     public TrayApp(Image image)
     {
         super(image, Main.APPLICATION_NAME);
@@ -43,13 +46,35 @@ public class TrayApp extends TrayIcon
         messageItem.addActionListener(e -> MainDisplayFrame.INSTANCE.focusApp());
         menu.add(messageItem);
 
-        //Close option TODO add spacer
+        menu.addSeparator();
+
+        enableDisableMenuItem = new MenuItem("Disable");
+        enableDisableMenuItem.addActionListener(e -> toggleUpdateEnable());
+        menu.add(enableDisableMenuItem);
+
+        menu.addSeparator();
+
+        //Close option
         MenuItem closeItem = new MenuItem("Close");
         closeItem.addActionListener(e -> MainDisplayFrame.close());
         menu.add(closeItem);
 
         //Add menu to tray
         setPopupMenu(menu);
+    }
+
+    public void toggleUpdateEnable()
+    {
+        if(!areUpdatesEnabled)
+        {
+            areUpdatesEnabled = true;
+            enableDisableMenuItem.setLabel("Enable");
+        }
+        else
+        {
+            areUpdatesEnabled = false;
+            enableDisableMenuItem.setLabel("Disable");
+        }
     }
 
     public static void create()
