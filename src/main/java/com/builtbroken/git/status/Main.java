@@ -1,12 +1,12 @@
 package com.builtbroken.git.status;
 
+import com.builtbroken.git.status.gui.MainDisplayFrame;
+import com.builtbroken.git.status.helpers.FileHelper;
 import com.builtbroken.git.status.obj.Repo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -15,8 +15,7 @@ import java.util.List;
  */
 public class Main
 {
-    public static int maxSearchDepth = 10;
-    public static List<String> foldersToIgnore = new ArrayList();
+
 
     public static void main(String... args)
     {
@@ -24,14 +23,6 @@ public class Main
 
         //Collect arguments
         final HashMap<String, String> launchSettings = loadArgs(args);
-
-        //TODO add args to add more folders to list
-        foldersToIgnore.add("build");
-        foldersToIgnore.add(".git");
-        foldersToIgnore.add(".gradle");
-        foldersToIgnore.add("src");
-        foldersToIgnore.add("output");
-        foldersToIgnore.add("out");
 
         if (launchSettings.containsKey("noGUI"))
         {
@@ -45,7 +36,7 @@ public class Main
             File searchFolder = new File(filePath);
             if (searchFolder.exists() && searchFolder.isDirectory())
             {
-                List<Repo> repos = getRepositoriesWithChanges(searchFolder);
+                List<Repo> repos = FileHelper.getRepositoriesWithChanges(searchFolder);
                 for (Repo repo : repos)
                 {
                     log("Repo: " + repo.file + " has " + repo.changeCount + " uncommitted changes");
@@ -62,7 +53,7 @@ public class Main
         else
         {
             //TODO load save file
-            //TODO open GUI
+            MainDisplayFrame.create(launchSettings);
         }
     }
 
@@ -76,66 +67,6 @@ public class Main
         catch (IOException e)
         {
             e.printStackTrace();
-        }
-    }
-
-    public static List<Repo> getRepositoriesWithChanges(File folder)
-    {
-        List<Repo> repos = getRepositories(folder);
-        Iterator<Repo> it = repos.iterator();
-        while (it.hasNext())
-        {
-            Repo repo = it.next();
-            try
-            {
-                repo.open();
-                repo.checkStatus();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                repo.close();
-            }
-
-            if (!repo.hasChanges())
-            {
-                it.remove();
-            }
-        }
-        return repos;
-    }
-
-    public static List<Repo> getRepositories(File folder)
-    {
-        List<Repo> repos = new ArrayList();
-
-        List<File> files = new ArrayList();
-        findFiles(folder, files, 0);
-
-        for (File file : files)
-        {
-            repos.add(new Repo(file));
-        }
-
-        return repos;
-    }
-
-    public static void findFiles(File folder, List<File> files, int depth)
-    {
-        for (File file : folder.listFiles())
-        {
-            if (file.getName().equals(".git"))
-            {
-                files.add(file);
-                break;
-            }
-            else if (file.isDirectory() && depth < maxSearchDepth && !foldersToIgnore.contains(file.getName()))
-            {
-                findFiles(file, files, depth + 1);
-            }
         }
     }
 
