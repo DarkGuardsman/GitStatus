@@ -2,7 +2,6 @@ package com.builtbroken.git.status.gui.file;
 
 import com.builtbroken.git.status.Main;
 import com.builtbroken.git.status.gui.MainDisplayFrame;
-import com.builtbroken.git.status.gui.repo.RepoCellRenderer;
 import com.builtbroken.jlib.lang.StringHelpers;
 
 import javax.swing.*;
@@ -28,7 +27,7 @@ public class SearchFolderPanel extends JPanel
         //Create list
         displayList = new JList(debugDataListModel);
         displayList.setLayoutOrientation(JList.VERTICAL);
-        displayList.setCellRenderer(new RepoCellRenderer());
+        displayList.setCellRenderer(new FileCellRenderer());
 
         createTopMenu();
         createCenterPanel();
@@ -66,14 +65,29 @@ public class SearchFolderPanel extends JPanel
         JPanel bottomMenuPanel = new JPanel();
         bottomMenuPanel.setMaximumSize(new Dimension(-1, 100));
 
-        JTextField searchBox = new JTextField();
-        searchBox.setMinimumSize(new Dimension(200, -1));
-        searchBox.setPreferredSize(new Dimension(200, 30));
-        searchBox.setToolTipText("File path");
-        bottomMenuPanel.add(searchBox);
+        //
+        JTextField filePathBox = new JTextField();
+        filePathBox.setMinimumSize(new Dimension(200, -1));
+        filePathBox.setPreferredSize(new Dimension(200, 30));
+        filePathBox.setToolTipText("File path");
+
+        Button findButton = new Button("Find");
+        findButton.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            int returnVal = chooser.showOpenDialog(SearchFolderPanel.this);
+            if (returnVal == JFileChooser.APPROVE_OPTION)
+            {
+                filePathBox.setText(chooser.getSelectedFile().getAbsolutePath());
+            }
+        });
+        bottomMenuPanel.add(findButton);
+
+        //Add text box after find button
+        bottomMenuPanel.add(filePathBox);
 
         Button filterListButton = new Button("Add");
-        filterListButton.addActionListener(e -> addFile(searchBox.getText().trim()));
+        filterListButton.addActionListener(e -> addFile(filePathBox.getText().trim()));
         bottomMenuPanel.add(filterListButton);
 
 
@@ -82,7 +96,7 @@ public class SearchFolderPanel extends JPanel
 
     protected void addFile(String file)
     {
-        if(!frame.core.foldersToSearch.contains(file))
+        if (!frame.core.foldersToSearch.contains(file))
         {
             frame.core.foldersToSearch.add(file); //TODO check for parent
             reloadDisplayList(null);
