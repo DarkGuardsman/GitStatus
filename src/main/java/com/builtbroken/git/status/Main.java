@@ -51,11 +51,17 @@ public class Main
         {
             try
             {
+                //Create and open GUI
+                MainDisplayFrame.create(launchSettings);
+
+                //Wait on app to die
                 while (MainDisplayFrame.isRunning())
                 {
-                    MainDisplayFrame.create(launchSettings);
                     Thread.sleep(100);
                 }
+
+                //Kill app, with normal exit
+                System.exit(0);
             }
             catch (Throwable t)
             {
@@ -74,6 +80,9 @@ public class Main
                                 + "\nError: " + t.toString(),
                         "Crash",
                         JOptionPane.ERROR_MESSAGE);
+
+                //Close with unexpected error
+                System.exit(-1);
             }
         }
     }

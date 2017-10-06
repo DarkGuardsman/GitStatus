@@ -2,7 +2,9 @@ package com.builtbroken.git.status.gui;
 
 import com.builtbroken.git.status.Main;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.io.IOException;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -10,6 +12,9 @@ import java.awt.*;
  */
 public class TrayApp extends TrayIcon
 {
+    public static final String ICON_PATH = "assets/icons/";
+    public static final String TRAY_SYNC_ICON_PATH = ICON_PATH + "Sync-Yellow-icon.png";
+
     public static TrayIcon INSTANCE;
 
     private static Image traySyncIcon;
@@ -54,7 +59,15 @@ public class TrayApp extends TrayIcon
         if (SystemTray.isSupported())
         {
             //Load images
-            traySyncIcon = Toolkit.getDefaultToolkit().getImage("assets/icons/Sync-Yellow-icon.png");
+            try
+            {
+                traySyncIcon = ImageIO.read(ClassLoader.getSystemResource(TRAY_SYNC_ICON_PATH));
+            }
+            catch (IOException e)
+            {
+                Main.log("Failed to load tray sync icon");
+                e.printStackTrace();
+            }
 
             //Create
             INSTANCE = new TrayApp(traySyncIcon);
