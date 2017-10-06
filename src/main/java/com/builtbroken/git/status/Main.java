@@ -3,6 +3,7 @@ package com.builtbroken.git.status;
 import com.builtbroken.git.status.obj.Repo;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,12 +54,28 @@ public class Main
                 //https://git-scm.com/book/be/v2/Embedding-Git-in-your-Applications-JGit
                 //https://github.com/centic9/jgit-cookbook
                 //https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/porcelain/ListUncommittedChanges.java
+
             }
+            waitForEnter("Press [ANY] key to exit!");
+            System.exit(0);
         }
         else
         {
             //TODO load save file
             //TODO open GUI
+        }
+    }
+
+    public static void waitForEnter(String message)
+    {
+        log(message);
+        try
+        {
+            System.in.read(); //TODO rewrite
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 
