@@ -21,6 +21,8 @@ public class Repo
 
     public final File file;
 
+    public File settingsFile;
+
     //User settings, loaded from JSON
     /** Display name of the repo */
     public String repoName;

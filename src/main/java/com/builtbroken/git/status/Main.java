@@ -46,7 +46,6 @@ public class Main
         }
         else
         {
-            //TODO load save file
             MainDisplayFrame.create(launchSettings);
         }
     }
