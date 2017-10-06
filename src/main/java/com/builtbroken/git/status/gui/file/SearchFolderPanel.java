@@ -1,8 +1,6 @@
 package com.builtbroken.git.status.gui.file;
 
-import com.builtbroken.git.status.Main;
 import com.builtbroken.git.status.gui.MainDisplayFrame;
-import com.builtbroken.jlib.lang.StringHelpers;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,32 +11,30 @@ import java.awt.*;
  */
 public class SearchFolderPanel extends JPanel
 {
-    JList displayList;
-
-    DefaultListModel<String> debugDataListModel = new DefaultListModel();
-
     MainDisplayFrame frame;
+    JPanel fileListPanel;
 
     public SearchFolderPanel(MainDisplayFrame frame)
     {
         this.frame = frame;
         setLayout(new BorderLayout());
 
-        //Create list
-        displayList = new JList(debugDataListModel);
-        displayList.setLayoutOrientation(JList.VERTICAL);
-        displayList.setCellRenderer(new FileCellRenderer());
-
         createTopMenu();
         createCenterPanel();
         createBottomMenu();
+
+        reloadDisplayList();
     }
 
     protected void createCenterPanel()
     {
         //Create scroll panel
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(displayList);
+
+        fileListPanel = new JPanel();
+        fileListPanel.setLayout(new BoxLayout(fileListPanel, BoxLayout.Y_AXIS));
+        scrollPane.setViewportView(fileListPanel);
+
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(getWidth() - 100, getHeight() - 100));
         scrollPane.setMinimumSize(new Dimension(getWidth() - 100, getHeight() - 100));
@@ -99,7 +95,7 @@ public class SearchFolderPanel extends JPanel
         if (!frame.core.foldersToSearch.contains(file))
         {
             frame.core.foldersToSearch.add(file); //TODO check for parent
-            reloadDisplayList(null);
+            reloadDisplayList();
         }
         else
         {
@@ -107,27 +103,23 @@ public class SearchFolderPanel extends JPanel
         }
     }
 
-    protected void reloadDisplayList(String filter)
+    public void removeFile(String text)
     {
-        //Debug
-        long time = System.nanoTime();
-        Main.log("Reloading search file display");
-
-        //Clear model
-        debugDataListModel.removeAllElements();
-
-        //Populate model
-        for (String data : frame.core.foldersToSearch)
+        if (frame.core.foldersToSearch.contains(text))
         {
-            //Filter by name
-            if (filter == null || filter.isEmpty() || data.contains(filter)) //TODO add regex support
-            {
-                debugDataListModel.addElement(data);
-            }
+            frame.core.foldersToSearch.remove(text);
+            reloadDisplayList();
         }
+    }
 
-        //Debug
-        long time2 = System.nanoTime();
-        Main.log("Done: " + StringHelpers.formatNanoTime(time2 - time));
+    protected void reloadDisplayList()
+    {
+        fileListPanel.removeAll();
+        for (String file : frame.core.foldersToSearch)
+        {
+            fileListPanel.add(new FilePanel(file, this));
+        }
+        fileListPanel.validate();
+        fileListPanel.repaint();
     }
 }
