@@ -15,10 +15,9 @@ import java.util.List;
  */
 public class Main
 {
-
-
     public static void main(String... args)
     {
+        //TODO add dependency downloader using Maven
         log("Starting");
 
         //Collect arguments
@@ -41,11 +40,6 @@ public class Main
                 {
                     log("Repo: " + repo.file + " has " + repo.changeCount + " uncommitted changes");
                 }
-
-                //https://git-scm.com/book/be/v2/Embedding-Git-in-your-Applications-JGit
-                //https://github.com/centic9/jgit-cookbook
-                //https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/porcelain/ListUncommittedChanges.java
-
             }
             waitForEnter("Press [ANY] key to exit!");
             System.exit(0);

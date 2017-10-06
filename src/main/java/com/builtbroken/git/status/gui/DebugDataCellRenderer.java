@@ -11,6 +11,11 @@ public class DebugDataCellRenderer extends DefaultListCellRenderer
     public Component getListCellRendererComponent(JList list, Object o, int index, boolean isSelected, boolean cellHasFocus)
     {
         Repo data = (Repo) o;
-        return super.getListCellRendererComponent(list, data.file, index, isSelected, cellHasFocus);
+        String text = "<html>";
+        text += "<h3>" + data.repoName + "</h3>";
+        text += "<p>File: " + data.file + "</p>";
+        text += "<p>Changes: " + data.changeCount + "</p>"; //TODO expand changes to add, remove, and modified
+        text += "</html>";
+        return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
     }
 }

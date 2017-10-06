@@ -15,12 +15,26 @@ import java.io.IOException;
  */
 public class Repo
 {
+    //https://git-scm.com/book/be/v2/Embedding-Git-in-your-Applications-JGit
+    //https://github.com/centic9/jgit-cookbook
+    //https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/porcelain/ListUncommittedChanges.java
+
     public final File file;
 
+    //User settings, loaded from JSON
+    /** Display name of the repo */
+    public String repoName;
+    /** Group to display the repo inside */
+    public String projectGroup;
+    /** Should the repo be displayed, or ignored */
+    public boolean ignore;
+
+    //Data about repo
     public boolean hasChanges = false;
     public boolean isOpen = false;
     public int changeCount = 0;
 
+    //Internal stuff
     private Repository repository;
     private Git git;
 
@@ -31,7 +45,7 @@ public class Repo
 
     public void open() throws IOException
     {
-        if(!isOpen)
+        if (!isOpen)
         {
             isOpen = true;
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
@@ -42,11 +56,16 @@ public class Repo
 
             git = new Git(repository);
         }
+
+        if(repoName == null)
+        {
+            repoName = file.getParentFile().getName();
+        }
     }
 
     public void close()
     {
-        if(isOpen)
+        if (isOpen)
         {
             isOpen = false;
             git.close();

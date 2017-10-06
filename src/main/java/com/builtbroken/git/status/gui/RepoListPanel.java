@@ -135,7 +135,7 @@ public class RepoListPanel extends JPanel
 
         //Debug
         long time2 = System.nanoTime();
-        Main.log("Done: " + StringHelpers.formatNanoTime(time2 - time));
+        Main.log("Done: " + StringHelpers.formatNanoTime(time2 - time)); //TODO log load time average to use for progress bar
 
         //Reload display
         reloadDisplayList(null);
