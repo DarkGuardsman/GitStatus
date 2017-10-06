@@ -1,6 +1,9 @@
 package com.builtbroken.git.status.gui;
 
 import com.builtbroken.git.status.Main;
+import com.builtbroken.git.status.gui.file.SearchFolderPanel;
+import com.builtbroken.git.status.gui.repo.RepoListPanel;
+import com.builtbroken.git.status.gui.settings.SettingsPanel;
 import com.builtbroken.git.status.logic.Core;
 
 import javax.swing.*;
@@ -22,6 +25,9 @@ public class MainDisplayFrame extends JFrame
     public final Core core;
 
     RepoListPanel repoListPanel;
+    SearchFolderPanel searchFolderPanel;
+    SettingsPanel settingsPanel;
+
     JMenuBar menuBar;
 
     public MainDisplayFrame(Core core)
@@ -36,6 +42,36 @@ public class MainDisplayFrame extends JFrame
         buildMenu();
         buildCenterPanel();
         pack();
+    }
+
+    public void openAboutDialog()
+    {
+        //TODO implement
+    }
+
+    public void openSearchFolderSettings()
+    {
+        hideCenterPanels();
+        searchFolderPanel.setVisible(true);
+    }
+
+    public void openSettings()
+    {
+        hideCenterPanels();
+        settingsPanel.setVisible(true);
+    }
+
+    public void openRepoList()
+    {
+        hideCenterPanels();
+        repoListPanel.setVisible(true);
+    }
+
+    protected void hideCenterPanels()
+    {
+        repoListPanel.setVisible(false);
+        searchFolderPanel.setVisible(false);
+        settingsPanel.setVisible(false);
     }
 
     protected void buildMenu()
@@ -99,24 +135,19 @@ public class MainDisplayFrame extends JFrame
         setJMenuBar(menuBar);
     }
 
-    private void openAboutDialog()
-    {
-        //TODO implement
-    }
-
-    private void openSearchFolderSettings()
-    {
-        //TODO implement
-    }
-
-    private void openSettings()
-    {
-        //TODO implement
-    }
-
     protected void buildCenterPanel()
     {
-        add(repoListPanel = new RepoListPanel(this), BorderLayout.CENTER);
+        JPanel panel = new JPanel();
+        panel.setLayout(new CardLayout());
+
+        panel.add(repoListPanel = new RepoListPanel(this));
+        panel.add(searchFolderPanel = new SearchFolderPanel(this));
+        panel.add(settingsPanel = new SettingsPanel(this));
+
+        searchFolderPanel.setVisible(false);
+        settingsPanel.setVisible(false);
+
+        add(panel, BorderLayout.CENTER);
     }
 
     public static boolean isRunning()
@@ -199,5 +230,4 @@ public class MainDisplayFrame extends JFrame
     {
         INSTANCE.setVisible(false);
     }
-
 }

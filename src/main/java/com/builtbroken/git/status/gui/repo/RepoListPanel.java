@@ -1,6 +1,7 @@
-package com.builtbroken.git.status.gui;
+package com.builtbroken.git.status.gui.repo;
 
 import com.builtbroken.git.status.Main;
+import com.builtbroken.git.status.gui.MainDisplayFrame;
 import com.builtbroken.git.status.obj.Repo;
 import com.builtbroken.jlib.lang.StringHelpers;
 
@@ -33,7 +34,7 @@ public class RepoListPanel extends JPanel
         //Create list
         displayList = new JList(debugDataListModel);
         displayList.setLayoutOrientation(JList.VERTICAL);
-        displayList.setCellRenderer(new DebugDataCellRenderer());
+        displayList.setCellRenderer(new RepoCellRenderer());
 
         //Build parts
         createCenterPanel();
@@ -85,7 +86,7 @@ public class RepoListPanel extends JPanel
      *
      * @param action
      */
-    protected void loadRepos(ActionEvent action)
+    public void loadRepos(ActionEvent action)
     {
         //Debug
         Main.log("Action: Load repositories");
@@ -103,7 +104,7 @@ public class RepoListPanel extends JPanel
         enableActions();
     }
 
-    protected void updateRepos(ActionEvent action)
+    public void updateRepos(ActionEvent action)
     {
         //Debug
         Main.log("Action: Update repositories");

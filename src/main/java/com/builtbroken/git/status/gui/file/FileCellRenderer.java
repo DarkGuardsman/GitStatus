@@ -1,11 +1,11 @@
-package com.builtbroken.git.status.gui;
+package com.builtbroken.git.status.gui.file;
 
 import com.builtbroken.git.status.obj.Repo;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class DebugDataCellRenderer extends DefaultListCellRenderer
+public class FileCellRenderer extends DefaultListCellRenderer
 {
     @Override
     public Component getListCellRendererComponent(JList list, Object o, int index, boolean isSelected, boolean cellHasFocus)
