@@ -22,8 +22,6 @@ public class RepoListPanel extends JPanel
 
     //Components
     JCheckBox changesOnlyCheckBox;
-    Button scanFileSystemButton;
-    Button updateRepositoriesButton;
     Button reloadDisplayButton;
     Button filterListButton;
 
@@ -38,7 +36,6 @@ public class RepoListPanel extends JPanel
         displayList.setCellRenderer(new DebugDataCellRenderer());
 
         //Build parts
-        createTopMenu();
         createCenterPanel();
         createBottomMenu();
     }
@@ -52,23 +49,6 @@ public class RepoListPanel extends JPanel
         scrollPane.setPreferredSize(new Dimension(getWidth() - 100, getHeight() - 100));
         scrollPane.setMinimumSize(new Dimension(getWidth() - 100, getHeight() - 100));
         add(scrollPane, BorderLayout.CENTER);
-    }
-
-    protected void createTopMenu()
-    {
-        //Menu top
-        JPanel topMenuPanel = new JPanel();
-        topMenuPanel.setMaximumSize(new Dimension(-1, 100));
-
-        scanFileSystemButton = new Button("Scan File System"); //TODO move to file menu
-        scanFileSystemButton.addActionListener(e -> loadRepos(e));
-        topMenuPanel.add(scanFileSystemButton);
-
-        updateRepositoriesButton = new Button("Check Repositories"); //TODO move to file menu
-        updateRepositoriesButton.addActionListener(e -> updateRepos(e));
-        topMenuPanel.add(updateRepositoriesButton);
-
-        add(topMenuPanel, BorderLayout.NORTH);
     }
 
     protected void createBottomMenu()
@@ -143,16 +123,12 @@ public class RepoListPanel extends JPanel
 
     protected void disableActions()
     {
-        scanFileSystemButton.setEnabled(false);
-        updateRepositoriesButton.setEnabled(false);
         reloadDisplayButton.setEnabled(false);
         filterListButton.setEnabled(false);
     }
 
     protected void enableActions()
     {
-        scanFileSystemButton.setEnabled(true);
-        updateRepositoriesButton.setEnabled(true);
         reloadDisplayButton.setEnabled(true);
         filterListButton.setEnabled(true);
     }

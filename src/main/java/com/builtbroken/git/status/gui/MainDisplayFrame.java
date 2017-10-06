@@ -2,10 +2,10 @@ package com.builtbroken.git.status.gui;
 
 import com.builtbroken.git.status.Main;
 import com.builtbroken.git.status.logic.Core;
-import com.builtbroken.git.status.logic.ThreadScan;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
@@ -21,6 +21,9 @@ public class MainDisplayFrame extends JFrame
 
     public final Core core;
 
+    RepoListPanel repoListPanel;
+    JMenuBar menuBar;
+
     public MainDisplayFrame(Core core)
     {
         this.core = core;
@@ -30,8 +33,90 @@ public class MainDisplayFrame extends JFrame
         setTitle(Main.APPLICATION_NAME);
 
         setLayout(new BorderLayout());
-        add(new RepoListPanel(this), BorderLayout.CENTER);
+        buildMenu();
+        buildCenterPanel();
         pack();
+    }
+
+    protected void buildMenu()
+    {
+        menuBar = new JMenuBar();
+
+        //File menu
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+        fileMenu.getAccessibleContext().setAccessibleDescription("Menu containing file options and settings.");
+
+        JMenuItem scanFoldersMenuItem = new JMenuItem("Scan Folders", KeyEvent.VK_S);
+        scanFoldersMenuItem.addActionListener(e -> repoListPanel.loadRepos(e));
+        scanFoldersMenuItem.getAccessibleContext().setAccessibleDescription("Runs a scan on folders to look for repositories.");
+        fileMenu.add(scanFoldersMenuItem);
+
+        JMenuItem scanRepositoriesMenuItem = new JMenuItem("Check Repositories", KeyEvent.VK_S);
+        scanRepositoriesMenuItem.addActionListener(e -> repoListPanel.updateRepos(e));
+        scanRepositoriesMenuItem.getAccessibleContext().setAccessibleDescription("Reloads repositories making sure they still exist and checking for status changes.");
+        fileMenu.add(scanRepositoriesMenuItem);
+
+        fileMenu.addSeparator();
+
+        JMenuItem settingsMenuItem = new JMenuItem("Settings", KeyEvent.VK_S);
+        settingsMenuItem.addActionListener(e -> openSettings());
+        settingsMenuItem.getAccessibleContext().setAccessibleDescription("Opens program settings.");
+        fileMenu.add(settingsMenuItem);
+
+        fileMenu.addSeparator();
+
+        JMenuItem exitMenuItem = new JMenuItem("Exit", KeyEvent.VK_X);
+        exitMenuItem.addActionListener(e -> close());
+        exitMenuItem.getAccessibleContext().setAccessibleDescription("Closes the program");
+        fileMenu.add(exitMenuItem);
+
+        menuBar.add(fileMenu);
+
+        //Edit menu
+        JMenu editMenu = new JMenu("Edit");
+        editMenu.setMnemonic(KeyEvent.VK_E);
+        editMenu.getAccessibleContext().setAccessibleDescription("Menu containing options to edit the program.");
+
+        JMenuItem editSearchLocationMenuItem = new JMenuItem("Search Folders", KeyEvent.VK_S);
+        editSearchLocationMenuItem.addActionListener(e -> openSearchFolderSettings());
+        editSearchLocationMenuItem.getAccessibleContext().setAccessibleDescription("Opens dialog to add, edit, or remove folders locations to search for repositories.");
+        editMenu.add(editSearchLocationMenuItem);
+
+        menuBar.add(editMenu);
+
+        //Help menu
+        JMenu helpMenu = new JMenu("Help");
+        helpMenu.setMnemonic(KeyEvent.VK_H);
+        helpMenu.getAccessibleContext().setAccessibleDescription("Menu containing options to access information about the program.");
+        menuBar.add(helpMenu);
+
+        JMenuItem aboutMenuItem = new JMenuItem("About", KeyEvent.VK_A);
+        aboutMenuItem.addActionListener(e -> openAboutDialog());
+        aboutMenuItem.getAccessibleContext().setAccessibleDescription("Opens dialog containing information about the program");
+        helpMenu.add(aboutMenuItem);
+
+        setJMenuBar(menuBar);
+    }
+
+    private void openAboutDialog()
+    {
+        //TODO implement
+    }
+
+    private void openSearchFolderSettings()
+    {
+        //TODO implement
+    }
+
+    private void openSettings()
+    {
+        //TODO implement
+    }
+
+    protected void buildCenterPanel()
+    {
+        add(repoListPanel = new RepoListPanel(this), BorderLayout.CENTER);
     }
 
     public static boolean isRunning()
