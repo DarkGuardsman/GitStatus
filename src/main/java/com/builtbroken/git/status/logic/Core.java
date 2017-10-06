@@ -29,7 +29,7 @@ public class Core
 
     public ThreadScan threadScan;
 
-    private long repoScanTime = TimeUnit.MINUTES.convert(5, TimeUnit.NANOSECONDS);
+    private long repoScanTime = TimeUnit.NANOSECONDS.convert(5, TimeUnit.MINUTES);
 
     public Core(HashMap<String, String> launchSettings)
     {
