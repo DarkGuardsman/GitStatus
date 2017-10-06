@@ -18,6 +18,9 @@ public class SaveHandler
     public static final String REPOSITORY_PATH = "repos";
     public static final String SAVE_PATH = "settings.json";
 
+    public boolean hasUnsavedChanged = false;
+    public boolean hasLoaded = false;
+
     List<String> foldersContaingRepos = new ArrayList();
 
     File saveFile;
@@ -43,6 +46,8 @@ public class SaveHandler
         //Debug
         time = System.nanoTime() - time;
         Main.log("Done..." + StringHelpers.formatNanoTime(time));
+
+        hasLoaded = true;
     }
 
     protected void loadSettings()
@@ -87,6 +92,8 @@ public class SaveHandler
         //Debug
         time = System.nanoTime() - time;
         Main.log("Done..." + StringHelpers.formatNanoTime(time));
+
+        hasUnsavedChanged = false;
     }
 
     protected void saveSettings()
@@ -109,7 +116,7 @@ public class SaveHandler
         }
         else
         {
-            
+
         }
     }
 }

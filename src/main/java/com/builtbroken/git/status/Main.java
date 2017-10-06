@@ -4,6 +4,7 @@ import com.builtbroken.git.status.gui.MainDisplayFrame;
 import com.builtbroken.git.status.helpers.FileHelper;
 import com.builtbroken.git.status.obj.Repo;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,6 +16,8 @@ import java.util.List;
  */
 public class Main
 {
+    public static final String APPLICATION_NAME = "Git Status Tracker";
+
     public static void main(String... args)
     {
         //TODO add dependency downloader using Maven
@@ -46,7 +49,32 @@ public class Main
         }
         else
         {
-            MainDisplayFrame.create(launchSettings);
+            try
+            {
+                while (MainDisplayFrame.isRunning())
+                {
+                    MainDisplayFrame.create(launchSettings);
+                    Thread.sleep(100);
+                }
+            }
+            catch (Throwable t)
+            {
+                //Log error
+                t.printStackTrace(); //TODO save to file
+
+                //Save data to prevent loss of work
+                if (MainDisplayFrame.INSTANCE != null)
+                {
+                    MainDisplayFrame.INSTANCE.forceSave(true);
+                }
+
+                //TODO make custom error pop up with pastebin.com button
+                JOptionPane.showMessageDialog(MainDisplayFrame.INSTANCE, "Unexpected error while running application!"
+
+                                + "\nError: " + t.toString(),
+                        "Crash",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 

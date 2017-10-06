@@ -19,10 +19,13 @@ public class MainDisplayFrame extends JFrame
     public static final String WORKING_PATH = "bbm/getstatus";
 
     public static MainDisplayFrame INSTANCE;
+    private static boolean running = true;
+
 
     public HashMap<String, String> launchSettings;
     public SaveHandler saveHandler;
     public File saveFolder;
+
 
     public MainDisplayFrame(HashMap<String, String> launchSettings)
     {
@@ -30,11 +33,16 @@ public class MainDisplayFrame extends JFrame
         setMinimumSize(new Dimension(800, 600));
         setSize(new Dimension(1000, 800));
         setResizable(false);
-        setTitle("Git Sync Tracker");
+        setTitle(Main.APPLICATION_NAME);
 
         setLayout(new BorderLayout());
         add(new RepoListPanel(this), BorderLayout.CENTER);
         pack();
+    }
+
+    public static boolean isRunning()
+    {
+        return running;
     }
 
     public void init()
@@ -83,16 +91,7 @@ public class MainDisplayFrame extends JFrame
             @Override
             public void windowClosing(WindowEvent e)
             {
-                int confirm = JOptionPane.showOptionDialog(
-                        null, "Are You Sure to Close?",
-                        "Exit Confirmation", JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE, null, null, null);
-                if (confirm == 0)
-                {
-                    INSTANCE.saveHandler.save();
-                    INSTANCE.dispose();
-                    System.exit(0);
-                }
+                close();
             }
         });
 
@@ -103,10 +102,55 @@ public class MainDisplayFrame extends JFrame
         Main.log("Loading save");
         INSTANCE.saveHandler.load();
 
+        //Create system tray
+        TrayApp.create();
+
         //Show
         INSTANCE.show();
     }
 
+    /**
+     * Called to close the application
+     */
+    public static void close()
+    {
+        int confirm = JOptionPane.showOptionDialog(
+                null, "Are You Sure to Close?",
+                "Exit Confirmation", JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, null, null);
+        if (confirm == 0)
+        {
+            INSTANCE.saveHandler.save();
+            INSTANCE.dispose();
+            running = false;
+            System.exit(0);
+        }
+    }
+
+    /**
+     * Called to restore the application to focus
+     */
+    public void focusApp()
+    {
+        setState(JFrame.NORMAL);
+        INSTANCE.setVisible(true);
+        INSTANCE.toFront();
+        INSTANCE.requestFocus();
+    }
+
+    /**
+     * Sends the application to the tray
+     */
+    public void sendToTray()
+    {
+        INSTANCE.setVisible(false);
+    }
+
+    /**
+     * Gets the recommended folder to scan for repos
+     *
+     * @return
+     */
     public String getRecommendedSearchFolder()
     {
         if (launchSettings.containsKey("searchFolder"))
@@ -115,5 +159,23 @@ public class MainDisplayFrame extends JFrame
         }
         //TODO when save system is added, get last used folder
         return null;
+    }
+
+    /**
+     * Called to force save
+     *
+     * @param crashed - is the save being forced due to a crash
+     * @return
+     */
+    public void forceSave(boolean crashed)
+    {
+        if (crashed)
+        {
+            //TODO backup old save data
+        }
+        if (saveHandler != null && saveHandler.hasUnsavedChanged)
+        {
+            saveHandler.save();
+        }
     }
 }
