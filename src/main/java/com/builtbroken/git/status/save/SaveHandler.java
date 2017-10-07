@@ -188,15 +188,18 @@ public class SaveHandler
 
     protected void saveRepo(File parent, Repo repo)
     {
-        JsonObject saveData = new JsonObject();
-        saveData.add("file", new JsonPrimitive(repo.file.getAbsolutePath()));
-        if (repo.displayName != null)
+        if(repo != null && repo.id != null && !repo.id.trim().isEmpty())
         {
-            saveData.add("name", new JsonPrimitive(repo.displayName));
-        }
-        saveData.add("ignore", new JsonPrimitive(repo.ignore));
+            JsonObject saveData = new JsonObject();
+            saveData.add("file", new JsonPrimitive(repo.file.getAbsolutePath()));
+            if (repo.displayName != null)
+            {
+                saveData.add("name", new JsonPrimitive(repo.displayName));
+            }
+            saveData.add("ignore", new JsonPrimitive(repo.ignore));
 
-        FileHelper.writeJson(new File(parent, repo.id), saveData);
+            FileHelper.writeJson(new File(parent, repo.id + ".json"), saveData);
+        }
     }
 
     protected void loadRepo(File file)
