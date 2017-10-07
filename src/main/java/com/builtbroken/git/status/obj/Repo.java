@@ -59,7 +59,7 @@ public class Repo
         }
         if (id == null && file != null)
         {
-            id = file.getParentFile().getName(); //not final id, is adjust to avoid overlap
+            this.id = file.getParentFile().getName(); //not final id, is adjust to avoid overlap
         }
     }
 
