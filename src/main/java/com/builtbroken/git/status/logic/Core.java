@@ -25,6 +25,7 @@ public class Core
     public File saveFolder;
 
     public final HashMap<File, Repo> repositories = new HashMap();
+    public final HashMap<String, Repo> repositoriesIdMap = new HashMap();
     public final List<String> foldersToSearch = new ArrayList();
 
     public ThreadScan threadScan;
@@ -128,11 +129,7 @@ public class Core
                 for (Repo repo : repoList)
                 {
                     repo.exists = true;
-                    if (!repositories.containsKey(repo.file))
-                    {
-                        repositories.put(repo.file, repo);
-                    }
-                    else
+                    if (!addRepo(repo))
                     {
                         repositories.get(repo.file).exists = true;
                     }
@@ -147,6 +144,37 @@ public class Core
                 Main.log("Invalid directory: " + folderPath);
             }
         }
+    }
+
+    public boolean addRepo(Repo repo)
+    {
+        if (!repositories.containsKey(repo.file))
+        {
+            //Get new id if conflicts
+            if (repositoriesIdMap.containsKey(repo.id))
+            {
+                String id;
+
+                //Start at one due to being human readable, and lack of number is zero
+                int i = 1;
+                do
+                {
+                    //Generate next id
+                    id = repo.id + "." + (i++);
+                }
+                while (repositoriesIdMap.containsKey(id));
+
+                //Assign id
+                repo.id = id;
+            }
+
+            //Add entry to maps
+            repositoriesIdMap.put(repo.id, repo);
+            repositories.put(repo.file, repo);
+
+            return true;
+        }
+        return false; //Repos is already added
     }
 
     public void load()

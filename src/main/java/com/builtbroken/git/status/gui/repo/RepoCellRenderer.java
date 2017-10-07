@@ -12,7 +12,7 @@ public class RepoCellRenderer extends DefaultListCellRenderer
     {
         Repo data = (Repo) o;
         String text = "<html>";
-        text += "<h3>" + data.repoName + "</h3>";
+        text += "<h3>" + data.displayName + "</h3>";
         text += "<p>File: " + data.file + "</p>";
         text += "<p>Changes: " + data.changeCount + "</p>"; //TODO expand changes to add, remove, and modified
         text += "</html>";

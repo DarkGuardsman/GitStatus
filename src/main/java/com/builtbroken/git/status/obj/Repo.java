@@ -19,13 +19,12 @@ public class Repo
     //https://github.com/centic9/jgit-cookbook
     //https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/porcelain/ListUncommittedChanges.java
 
-    public final File file;
-
-    public File settingsFile;
+    public File file;
+    public String id;
 
     //User settings, loaded from JSON
     /** Display name of the repo */
-    public String repoName;
+    public String displayName;
     /** Group to display the repo inside */
     public String projectGroup;
     /** Should the repo be displayed, or ignored */
@@ -43,9 +42,25 @@ public class Repo
     private Git git;
 
 
-    public Repo(File file)
+    public Repo(File file, String id)
     {
+        this.id = id;
         this.file = file;
+        if (displayName == null)
+        {
+            if (id != null)
+            {
+                displayName = id;
+            }
+            else if (file != null)
+            {
+                displayName = file.getParentFile().getName();
+            }
+        }
+        if (id == null && file != null)
+        {
+            id = file.getParentFile().getName(); //not final id, is adjust to avoid overlap
+        }
     }
 
     public void open() throws IOException
@@ -62,9 +77,9 @@ public class Repo
             git = new Git(repository);
         }
 
-        if (repoName == null)
+        if (displayName == null)
         {
-            repoName = file.getParentFile().getName();
+            displayName = file.getParentFile().getName();
         }
     }
 

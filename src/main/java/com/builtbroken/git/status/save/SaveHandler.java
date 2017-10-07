@@ -4,6 +4,7 @@ import com.builtbroken.git.status.Main;
 import com.builtbroken.git.status.gui.MainDisplayFrame;
 import com.builtbroken.git.status.helpers.FileHelper;
 import com.builtbroken.git.status.logic.Core;
+import com.builtbroken.git.status.obj.Repo;
 import com.builtbroken.jlib.lang.StringHelpers;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -56,52 +57,6 @@ public class SaveHandler
         hasLoaded = true;
     }
 
-    protected void loadSettings()
-    {
-        File file = new File(saveFile, SAVE_PATH);
-        if (file.exists() && file.isFile())
-        {
-            try
-            {
-                JsonElement element = JsonLoader.loadJsonFile(file);
-                if (element != null && element.isJsonObject())
-                {
-                    JsonObject saveData = element.getAsJsonObject();
-                    if (saveData.has("repoFolders"))
-                    {
-                        loadRepoLocations(saveData.get("repoFolders").getAsJsonArray());
-                    }
-                }
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    protected void loadRepoLocations(JsonArray array)
-    {
-        core.foldersToSearch.clear();
-        for (JsonElement element : array)
-        {
-            if (element.isJsonPrimitive())
-            {
-                String file = element.getAsString();
-                core.foldersToSearch.add(file);
-            }
-        }
-    }
-
-    protected void loadRepoSettings()
-    {
-        File file = new File(saveFile, REPOSITORY_PATH);
-        if (file.exists())
-        {
-
-        }
-    }
-
     public void save()
     {
         //Debug
@@ -144,11 +99,48 @@ public class SaveHandler
         FileHelper.writeJson(file, object);
     }
 
+    protected void loadSettings()
+    {
+        File file = new File(saveFile, SAVE_PATH);
+        if (file.exists() && file.isFile())
+        {
+            try
+            {
+                JsonElement element = JsonLoader.loadJsonFile(file);
+                if (element != null && element.isJsonObject())
+                {
+                    JsonObject saveData = element.getAsJsonObject();
+                    if (saveData.has("repoFolders"))
+                    {
+                        loadRepoLocations(saveData.get("repoFolders").getAsJsonArray());
+                    }
+                }
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
     protected void saveRepoLocations(JsonArray array)
     {
         for (String file : core.foldersToSearch)
         {
             array.add(new JsonPrimitive(file));
+        }
+    }
+
+    protected void loadRepoLocations(JsonArray array)
+    {
+        core.foldersToSearch.clear();
+        for (JsonElement element : array)
+        {
+            if (element.isJsonPrimitive())
+            {
+                String file = element.getAsString();
+                core.foldersToSearch.add(file);
+            }
         }
     }
 
@@ -165,7 +157,76 @@ public class SaveHandler
         }
         else
         {
+            for (Repo repo : core.repositories.values())
+            {
+                saveRepo(file, repo);
+            }
+        }
+    }
 
+
+    protected void loadRepoSettings()
+    {
+        //Clear old data
+        core.repositoriesIdMap.clear();
+        core.repositories.clear();
+
+        //Load files from directory
+        File folder = new File(saveFile, REPOSITORY_PATH);
+        if (folder.exists())
+        {
+            //Loop files
+            for (File file : folder.listFiles())
+            {
+                if (file.getName().endsWith(".json"))
+                {
+                    loadRepo(file);
+                }
+            }
+        }
+    }
+
+    protected void saveRepo(File parent, Repo repo)
+    {
+        JsonObject saveData = new JsonObject();
+        saveData.add("file", new JsonPrimitive(repo.file.getAbsolutePath()));
+        if (repo.displayName != null)
+        {
+            saveData.add("name", new JsonPrimitive(repo.displayName));
+        }
+        saveData.add("ignore", new JsonPrimitive(repo.ignore));
+
+        FileHelper.writeJson(new File(parent, repo.id), saveData);
+    }
+
+    protected void loadRepo(File file)
+    {
+        try
+        {
+            JsonElement element = JsonLoader.loadJsonFile(file);
+            if (element.isJsonObject())
+            {
+                JsonObject object = element.getAsJsonObject();
+                String id = file.getName().replace(".json", "");
+                if (object.has("file"))
+                {
+                    String filePath = object.getAsJsonPrimitive("file").getAsString();
+                    Repo repo = new Repo(new File(filePath), id);
+                    if (object.has("name"))
+                    {
+                        repo.displayName = object.getAsJsonPrimitive("name").getAsString();
+                    }
+                    if (object.has("ignore"))
+                    {
+                        repo.ignore = object.getAsJsonPrimitive("ignore").getAsBoolean();
+                    }
+                    core.addRepo(repo);
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 }

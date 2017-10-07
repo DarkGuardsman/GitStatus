@@ -70,7 +70,7 @@ public class FileHelper
 
         for (File file : files)
         {
-            repos.add(new Repo(file));
+            repos.add(new Repo(file, null));
         }
 
         return repos;
