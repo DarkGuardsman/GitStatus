@@ -1,29 +1,37 @@
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
         maven {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
       classpath 'org.ajoberstar:gradle-git:1.3.2'
       classpath 'org.ajoberstar:grgit:1.4.1'
+        //classpath "net.jsign:jsign:1.3"
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.1"
+        classpath 'gradle.plugin.edu.sc.seis.gradle:launch4j:2.4.2'
     }
 }
 
 plugins {
   id 'net.saliman.cobertura' version '2.2.5'
   id 'com.github.kt3k.coveralls' version '2.0.1'
-  id "se.bjurr.gitchangelog.git-changelog-gradle-plugin" version "1.45"
+  id "se.bjurr.gitchangelog.git-changelog-gradle-plugin" version "1.50"
 }
 
 //Applies the scala plugin
 apply plugin: 'scala'
-apply from: 'https://raw.githubusercontent.com/BuiltBrokenModding/BuiltBrokenScripts/buildScripts/index/index-nonmc.gradle'
+apply from: 'https://raw.githubusercontent.com/BuiltBrokenModding/BuiltBrokenScripts/universal/index/index-nonmc.gradle'
 //apply from: 'https://raw.githubusercontent.com/BuiltBrokenModding/BuiltBrokenScripts/buildScripts/scripts/both/repos.gradle'
 apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'jacoco'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'edu.sc.seis.launch4j'
+apply plugin: 'maven-publish'
 
 dependencies{
     compile 'com.google.guava:guava:11.0.2'
@@ -48,6 +56,15 @@ if (new File(projectDir, '.git').exists()) {
 def currentJvm = org.gradle.internal.jvm.Jvm.current()
 println "Current Java version = " + currentJvm
 
+shadowJar {
+    dependencies {
+        exclude(dependency('org.projectlombok:lombok'))
+        exclude(dependency('junit:junit:4.11'))
+    }
+    destinationDir = file rootDir.path + '/output/'
+
+}
+
 jar {
      manifest.mainAttributes(
             "Built-By": System.getProperty('user.name'),
@@ -55,7 +72,19 @@ jar {
             "Implementation-Title": archivesBaseName,
             "Implementation-Version": project.version,
             "Git-Hash": gitHash,
-            "Main-Class": "com.builtbroken.updater.Main")
+            "Main-Class": "com.builtbroken.git.status.Main")
+}
+
+createExe {
+  // https://github.com/TheBoegl/gradle-launch4j
+  outfile = '../../output/GitStatus.exe'
+  copyConfigurable = project.tasks.shadowJar.outputs.files
+  jar = "lib/${project.tasks.shadowJar.archiveName}"
+  mainClassName = 'com.builtbroken.git.status.Main'
+  //icon = '${projectDir}/src/main/resources/com/skcraft/launcher/icon.ico'
+  downloadUrl = "http://java.com/download"
+  jreMinVersion = "1.8.0"
+  companyName = "Oblivion Networks"
 }
 
 jacocoTestReport {
@@ -70,3 +99,5 @@ def getDate() {
     def formattedDate = date.format('yyyyMMddHHmmss')
     return formattedDate
 }
+
+tasks.build.dependsOn "shadowJar", "createExe",  "publish"
