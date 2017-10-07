@@ -43,7 +43,6 @@ public class ThreadScan extends Thread
 
     protected void doScan()
     {
-        core.loadRepositoryList();
         core.updateRepositoryList();
     }
 
