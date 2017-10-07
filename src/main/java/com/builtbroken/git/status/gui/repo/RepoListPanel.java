@@ -113,7 +113,7 @@ public class RepoListPanel extends JPanel
         disableActions();
 
         //Reload repositories
-        frame.core.loadRepositoryList();
+        frame.core.updateRepositoryList();
 
         //Reload display
         reloadDisplayList(null);
