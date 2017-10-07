@@ -112,7 +112,7 @@ public class SearchFolderPanel extends JPanel
         }
     }
 
-    protected void reloadDisplayList()
+    public void reloadDisplayList()
     {
         fileListPanel.removeAll();
         for (String file : frame.core.foldersToSearch)

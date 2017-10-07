@@ -2,12 +2,17 @@ package com.builtbroken.git.status.save;
 
 import com.builtbroken.git.status.Main;
 import com.builtbroken.git.status.gui.MainDisplayFrame;
+import com.builtbroken.git.status.helpers.FileHelper;
+import com.builtbroken.git.status.logic.Core;
 import com.builtbroken.jlib.lang.StringHelpers;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import javax.swing.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -21,13 +26,14 @@ public class SaveHandler
     public boolean hasUnsavedChanged = false;
     public boolean hasLoaded = false;
 
-    List<String> foldersContaingRepos = new ArrayList();
-
     File saveFile;
 
-    public SaveHandler(File saveFile)
+    public final Core core;
+
+    public SaveHandler(File saveFile, Core core)
     {
         this.saveFile = saveFile;
+        this.core = core;
     }
 
     public void load()
@@ -55,7 +61,35 @@ public class SaveHandler
         File file = new File(saveFile, SAVE_PATH);
         if (file.exists() && file.isFile())
         {
+            try
+            {
+                JsonElement element = JsonLoader.loadJsonFile(file);
+                if (element != null && element.isJsonObject())
+                {
+                    JsonObject saveData = element.getAsJsonObject();
+                    if (saveData.has("repoFolders"))
+                    {
+                        loadRepoLocations(saveData.get("repoFolders").getAsJsonArray());
+                    }
+                }
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
 
+    protected void loadRepoLocations(JsonArray array)
+    {
+        core.foldersToSearch.clear();
+        for (JsonElement element : array)
+        {
+            if (element.isJsonPrimitive())
+            {
+                String file = element.getAsString();
+                core.foldersToSearch.add(file);
+            }
         }
     }
 
@@ -99,8 +133,23 @@ public class SaveHandler
     protected void saveSettings()
     {
         File file = new File(saveFile, SAVE_PATH);
-        //TODO generate JSON
-        //TODO write save file
+
+        JsonObject object = new JsonObject();
+
+        //Save folders to scan
+        JsonArray array = new JsonArray();
+        saveRepoLocations(array);
+        object.add("repoFolders", array);
+
+        FileHelper.writeJson(file, object);
+    }
+
+    protected void saveRepoLocations(JsonArray array)
+    {
+        for (String file : core.foldersToSearch)
+        {
+            array.add(new JsonPrimitive(file));
+        }
     }
 
     protected void saveRepoSettings()
@@ -110,7 +159,7 @@ public class SaveHandler
         {
             file.mkdirs();
         }
-        if(!file.isDirectory())
+        if (!file.isDirectory())
         {
             JOptionPane.showConfirmDialog(MainDisplayFrame.INSTANCE, "Repos setting save location is not a valid directory!\nFile: " + saveFile, "Invalid output folder", JOptionPane.ERROR_MESSAGE, JOptionPane.OK_OPTION);
         }

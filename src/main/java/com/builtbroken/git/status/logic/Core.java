@@ -66,7 +66,7 @@ public class Core
             {
                 saveFolder.mkdirs();
             }
-            saveHandler = new SaveHandler(saveFolder);
+            saveHandler = new SaveHandler(saveFolder, this);
         }
 
         threadScan = new ThreadScan(this);

@@ -52,6 +52,7 @@ public class MainDisplayFrame extends JFrame
     public void openSearchFolderSettings()
     {
         hideCenterPanels();
+        searchFolderPanel.reloadDisplayList();
         searchFolderPanel.setVisible(true);
     }
 

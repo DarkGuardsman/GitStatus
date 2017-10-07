@@ -1,8 +1,13 @@
 package com.builtbroken.git.status.helpers;
 
 import com.builtbroken.git.status.obj.Repo;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -84,6 +89,19 @@ public class FileHelper
             {
                 findFiles(file, files, depth + 1);
             }
+        }
+    }
+
+    public static void writeJson(File writeFile, JsonObject object)
+    {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try (FileWriter file = new FileWriter(writeFile))
+        {
+            file.write(gson.toJson(object));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 }
