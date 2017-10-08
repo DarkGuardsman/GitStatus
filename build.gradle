@@ -87,7 +87,7 @@ createExe {
   //icon = '${projectDir}/src/main/resources/com/skcraft/launcher/icon.ico'
   downloadUrl = "http://java.com/download"
   jreMinVersion = "1.8.0"
-  companyName = "Oblivion Networks"
+  companyName = "BuiltBroken"
   jreRuntimeBits = "64/32"
 }
 
