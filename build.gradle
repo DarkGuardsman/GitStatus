@@ -59,7 +59,10 @@ println "Current Java version = " + currentJvm
 shadowJar {
     dependencies {
         exclude(dependency('org.projectlombok:lombok'))
-        exclude(dependency('junit:junit:4.11'))
+        exclude(dependency('org.scala-lang:scala-library:2.11.1'))
+        exclude(dependency {
+           it.moduleGroup == 'junit'
+       })
     }
     destinationDir = file rootDir.path + '/output/'
 
@@ -85,6 +88,7 @@ createExe {
   downloadUrl = "http://java.com/download"
   jreMinVersion = "1.8.0"
   companyName = "Oblivion Networks"
+  jreRuntimeBits = "64/32"
 }
 
 jacocoTestReport {
